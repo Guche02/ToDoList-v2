@@ -1,0 +1,23 @@
+<%- include("header") -%>
+    <!-- <% %> is a scriplet tag that is used to for writing control flow statements in the EJS file.  -->
+    <div class="box" id="heading">
+        <h1 style="color: blue">
+            <%= listTitle %>
+        </h1>
+    </div>
+
+    <div class="box">
+        <% for ( var i=0; i<newListItems.length; i++) { %>
+            <div class="item">
+                <input type="checkbox">
+                <p>
+                    <%= newListItems[i] %>
+                </p>
+            </div>
+            <% } %>
+                <form class="item" action="/" method="post">
+                    <input type="text" name="NewItem" placeholder="Add a thing to do!" autocomplete="off">
+                    <button type="submit" name="list" value ="<%= listTitle %>"">+</button>
+                </form>
+    </div>
+    <%- include("footer") -%>
