@@ -26,15 +26,12 @@ app.get('/',function(req,res)
 app.get("/work", function(req,res)
 {
     res.render("list", { listTitle: "WorkList", newListItems: workItems})
-
-    })
+})
 
 app.get("/about", function(req,res)
 {
     res.render("about")
 })
-
-
 
 app.post("/",function(req,res)
 {
@@ -50,14 +47,9 @@ app.post("/",function(req,res)
     }
 })
 
-// app.post("/work",function(req,res)
-// {
-//     item = req.body.NewItem
-//     workItems.push(item)
-//     res.redirect("/work")
-// })
 
 app.listen(3000, function()
 {
     console.log("Server listening on port 3000.")
 })
+
