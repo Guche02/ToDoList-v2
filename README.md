@@ -1,4 +1,4 @@
-# ToDoList-EJS-Concepts
+# ToDoList-v2
 
-Created a ToDo list using EJS.
-This is the first Version of my ToDo list
+Created a ToDo list using EJS and MongoDB.
+More functionality to be added.
