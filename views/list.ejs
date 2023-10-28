@@ -16,12 +16,14 @@
                         <%= item.name %>
                     </p>
                 </div>
+                <!-- hidden tag is used to add the data that cannot be modified by the users and it is not displayed. -->
+                <input type="hidden" name="listName" value="<%= listTitle %>"></input>
             </form>
             <% }); %>
 
                 <form class="item" action="/" method="post">
                     <input type="text" name="NewItem" placeholder="Add a thing to do!" autocomplete="off">
-                    <button type="submit" name="list" value="<%= listTitle %>"">+</button>
+                    <button type="submit" name="listTitle" value="<%= listTitle %>"">+</button>
                 </form>
     </div>
     <%- include("footer") -%>

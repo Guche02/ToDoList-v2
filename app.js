@@ -41,11 +41,17 @@ const item3 = new Item({
 
 const defaultItems = [item1, item2, item3];
 
+// for a customList made by user
+const listSchema = {
+    name: String,
+    items: [itemsSchema]
+}
 
+const List = mongoose.model("List", listSchema)
+
+let currentDay = date();
 
 app.get('/', function (req, res) {
-
-    let currentDay = date();
 
     // reading from the database.
     // find doesn't accept a callback function anymore.
@@ -57,52 +63,94 @@ app.get('/', function (req, res) {
             }).catch(function (error) {
                 console.log(error)
             })
-        res.redirect("/")   
+            res.redirect("/")
         } else {
-        res.render('list', { listTitle: currentDay, newListItems: founditems })
+            res.render('list', { listTitle: currentDay, newListItems: founditems })
         }
         // render looks inside the view folder, so it is a must to create views folder.
     });
 })
 
+// express dynamic routing.
+app.get("/:customlistName", function (req, res) {
+    const customlistName = req.params.customlistName;
 
-app.get("/work", function (req, res) {
-    res.render("list", { listTitle: "WorkList", newListItems: workItems })
+    // doesn't accept a callback anymore.
+    List.findOne({ name: customlistName })
+        .then(function (result) {
+            if (result) {
+                res.render("list", { listTitle: result.name, newListItems: result.items })
+            } else {
+                const list = new List({
+                    name: customlistName,
+                    items: defaultItems
+                })
+                list.save();
+                res.redirect("/" + customlistName);
+            }
+        })
+        .catch(error => {
+            // Handle any errors that occur during the query
+            console.error(error);
+        });
+
+
 })
+
+// app.get("/work", function (req, res) {
+//     res.render("list", { listTitle: "WorkList", newListItems: workItems })
+// })
 
 app.get("/about", function (req, res) {
     res.render("about")
 })
 
 app.post("/", function (req, res) {
-    // console.log(req.body) Used to view the items added.
     const itemName = req.body.NewItem;
-    
-    const item = new Item ({
-        name: itemName
-    });
+    const listName = req.body.listTitle;
 
-    if (req.body.list === "WorkList") {
-        workItems.push(item)
-        res.redirect("/work")
-    } else {
+    const item = new Item({
+        name: itemName
+    })
+    // To update the list.
+    if (listName === currentDay) {
         item.save()
         res.redirect("/")
+    } else {
+        // I tried using updateOne but it didn't work, so used findOne.
+        List.findOne({ name: listName }).then(function (result) {
+            result.items.push(item);
+            result.save();
+            res.redirect("/" + listName)
+        }).catch(function (error) {
+            console.log(error);
+        })
     }
+
 })
 
 // onclick function cannot be used, as we need to post the data in order to delete it from the database on the server side.
-app.post("/delete", function(req,res)
-{
-    const checkedItem = req.body.checkbox
+app.post("/delete", function (req, res) {
+    const checkedItem = req.body.checkbox;
+    const listName = req.body.listName;
 
-    Item.findByIdAndRemove(checkedItem).then(function(){
-        console.log("Successfully deleted!")
-        res.redirect("/")
-    }).catch(function(error)
-    {
-        console.log(error)
-    })
+    if( listName === currentDay){
+        Item.findByIdAndRemove(checkedItem).then(function () {
+            console.log("Successfully deleted!")
+            res.redirect("/")
+        }).catch(function (error) {
+            console.log(error)
+        }) 
+    } else {
+        // to traverse through the array present inside the documents.
+        // first field specifies the condition, second field is used to pull the items matching the id of checkedItem
+        List.findOneAndUpdate({name: listName},{ $pull: {items: {_id: checkedItem}}}).then(function(result){
+          res.redirect("/"+ listName)
+        }).catch(function(error){
+            console.log(error)
+        })
+    }
+
 })
 
 app.listen(3000, function () {
